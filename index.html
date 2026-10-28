@@ -133,12 +133,14 @@
                     </button>
                     
                     <!-- Menu Upload Dokumen -->
-                    <button onclick="switchTab('prr')" id="nav-prr" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition">
-                        <span class="w-6 flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-cloud-arrow-up text-base"></i>
-                        </span>
-                        <span>Upload Dokumen</span>
-                    </button>
+                    <div id="menuUploadContainer">
+                        <button onclick="switchTab('prr')" id="nav-prr" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition">
+                            <span class="w-6 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-cloud-arrow-up text-base"></i>
+                            </span>
+                            <span>Upload Dokumen</span>
+                        </button>
+                    </div>
                     
                     <!-- Menu Download Dokumen -->
                     <button onclick="switchTab('download')" id="nav-download" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition">
@@ -551,7 +553,7 @@
     <script>
 
       // Konfigurasi URL Web App Google Apps Script Anda setelah di-deploy
-    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzG7DDPjCvDgJorcJYSXKngeMn-VCKa638Ju1IKeV5hhieX089Me_eIzm6PsoqBsz-k/exec";
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby3ad3disOJf16o2zNwqmwblP0UrkBOQiPIevEBKplVvPMq90BT9HUNW1WoMp8DxUUV/exec";
 
     // Membuat Mocking google.script.run agar kompatibel dengan Netlify tanpa ubah kode
     window.google = window.google || {};
@@ -765,33 +767,44 @@ window.onload = function() {
 };
 
     // Initialize Layout according to Role & Screen Size
+    // Initialize Layout according to Role & Screen Size
     async function initAppLayout() {
-    document.getElementById('loginView').classList.add('hidden');
-    document.getElementById('mainView').classList.remove('hidden');
+        document.getElementById('loginView').classList.add('hidden');
+        document.getElementById('mainView').classList.remove('hidden');
 
-    document.getElementById('mobileUserInfo').innerText = `${currentUser.Nama} (${currentUser.Role})`;
-    document.getElementById('areaFilterDisplay').innerText = `Unit: ${currentUser.ULP} / ${currentUser.UP3}`;
+        document.getElementById('mobileUserInfo').innerText = `${currentUser.Nama} (${currentUser.Role})`;
+        document.getElementById('areaFilterDisplay').innerText = `Unit: ${currentUser.ULP} / ${currentUser.UP3}`;
 
-    const isPetugas = currentUser.Role.toLowerCase() === 'petugas';
+        const roleLower = currentUser.Role ? currentUser.Role.toLowerCase() : '';
+        const isPetugas = roleLower.includes('petugas');
+        const isAdminUp3OrUid = roleLower.includes('admin up3') || roleLower.includes('admin uid');
 
-    if (isPetugas) {
-        document.getElementById('prrSectionTitle').innerText = 'Data PRR (Revisit Lapangan)';
-    } else {
-        document.getElementById('prrSectionTitle').innerText = 'Upload Dokumen PRR';
+        const menuUploadContainer = document.getElementById('menuUploadContainer');
+        const prrSectionTitle = document.getElementById('prrSectionTitle');
+
+        if (isAdminUp3OrUid) {
+            // Sembunyikan menu Upload Dokumen untuk Admin UP3 & Admin UID
+            if (menuUploadContainer) menuUploadContainer.classList.add('hidden');
+            if (prrSectionTitle) prrSectionTitle.innerText = 'Daftar Data PRR';
+        } else if (isPetugas) {
+            if (menuUploadContainer) menuUploadContainer.classList.remove('hidden');
+            if (prrSectionTitle) prrSectionTitle.innerText = 'Data PRR (Revisit Lapangan)';
+        } else {
+            if (menuUploadContainer) menuUploadContainer.classList.remove('hidden');
+            if (prrSectionTitle) prrSectionTitle.innerText = 'Upload Dokumen PRR';
+        }
+
+        if (document.getElementById('desktopUserName')) {
+            document.getElementById('desktopUserName').innerText = currentUser.Nama;
+        }
+        
+        if (document.getElementById('desktopUserRole')) {
+            document.getElementById('desktopUserRole').innerText = `${currentUser.Role} - ${currentUser.ULP}`;
+        }
+
+        await loadPRRData();
+        switchTab('dashboard');
     }
-
-    if (document.getElementById('desktopUserName')) {
-        document.getElementById('desktopUserName').innerText = currentUser.Nama;
-    }
-    
-    if (document.getElementById('desktopUserRole')) {
-        // Menggabungkan Role dan ULP dengan pemisah yang rapi
-        document.getElementById('desktopUserRole').innerText = `${currentUser.Role} - ${currentUser.ULP}`;
-    }
-
-    await loadPRRData();
-    switchTab('dashboard');
-}
 
 
 
