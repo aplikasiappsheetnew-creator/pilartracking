@@ -44,15 +44,6 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-        /* Menyembunyikan lencana Netlify secara paksa */
-#netlify-badge, 
-iframe[src*="netlify"], 
-img[alt*="Netlify"] {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen">
@@ -65,7 +56,7 @@ img[alt*="Netlify"] {
         </div>
         <p id="loadingText" class="mt-4 text-sm font-semibold tracking-wide animate-pulse">Memuat Data...</p>
     </div>
-    
+
     <!-- APP CONTAINER -->
     <div id="app" class="min-h-screen flex flex-col">
 
